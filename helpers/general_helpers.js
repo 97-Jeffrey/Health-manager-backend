@@ -93,9 +93,10 @@ const FgCyan = '\x1b[36m'
  * @return {Boolean} True if practitioner is valid, otherwise false
  */
 function _validateUser(req) {
-    const { user_id } = req.params
+
+    const { userId } = req.params
     const { username } = req.user
-    return user_id === username
+    return userId === username
 }
 
 

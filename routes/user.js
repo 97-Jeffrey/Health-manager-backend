@@ -37,20 +37,6 @@ router.get('/:userId', async(req, res)=>{
 
 
 
-router.post('/:userId/create', async(req,res)=>{
-    try{
-        console.log('hello')
-        const { userId } = req.params;
-        const { credentials } = req.body
-        console.log(userId, credentials)
-
-    }
-    catch(err){
-        console.log(err)
-    }
-})
-
-
 router.put('/:userId/update', async (req, res) => {
     try {
         const { userId } = req.params
@@ -62,15 +48,15 @@ router.put('/:userId/update', async (req, res) => {
         }
         const { attribute, value } = req.body
         awsUserService
-            .updatePractitioner(userId, attribute, value)
+            .updateUser(userId, attribute, value)
             .then((data) => {
                 printInfo(
                     'awsService',
                     NAMESPACE,
-                    'updatePractitioner',
+                    'updateUser',
                     data.Attributes
                 )
-                res.send(data.Attributes)
+                res.status(200).send(data.Attributes)
             })
             .catch((err) => {
                 printError('awsService', NAMESPACE, 'updateUser', err)

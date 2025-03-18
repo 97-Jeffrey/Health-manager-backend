@@ -1,9 +1,9 @@
 const docClient = require('../aws_config').getDocClient()
 
 /**
- * Get account information for practitioner with practitionerId = @param practitionerId
+ * Get account information for practitioner with practitionerId = @param userId
  *
- * @param {String} practitionerId
+ * @param {String} userId
  * @return {Promise} data - response is data.Item
  */
 

@@ -11,6 +11,7 @@ require('dotenv').config()
 
 // Separated routes for each resource
 const userRouter = require('./routes/user')
+const recipeRouter = require('./routes/recipe')
 
 
 const baseRoute = process.env.NODE_ENV === 'production' ? '' : 'dev/'
@@ -85,6 +86,7 @@ app.use(
 
 // Define a basic route
 app.use(`/${baseRoute}user`, cognitoAuthMiddleware, userRouter)
+   .use(`/${baseRoute}recipe`, cognitoAuthMiddleware, recipeRouter)
 
 // Start the server and listen on the specified port
 app.listen(PORT, () => {

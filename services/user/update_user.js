@@ -7,7 +7,7 @@ const docClient = require('../aws_config').getDocClient()
  * @return {Promise} data - response is data.Item
  */
 
-const USRE_ATTR = {
+const USER_ATTR = {
     email:'email',
     birthdate:"birthdate",
     name:'name',
@@ -15,23 +15,42 @@ const USRE_ATTR = {
     specialty:'specialty',
     phone_number: 'phone_number',
     address:'address',
+    recipes: 'recipes'
 }
 
+const TYPE_LIST_ATTR =[
+    'recipes'
+]
+
 function _updateAccount(userId, attribute, value) {
+
+    console.log(userId, attribute, value);
+
     let date = new Date()
+
+    let updateExp = 'SET last_updated_at = :timeNow, '
+    let expAttrVals = {
+        ':timeNow': date.toISOString(),
+    }
+
+    if (TYPE_LIST_ATTR.indexOf(attribute) !== -1) {
+        updateExp += `#attr = list_append(if_not_exists(#attr, :emptyList), :attr)`
+        expAttrVals[':emptyList'] = []
+        expAttrVals[':attr'] = [value]
+    } else {
+        updateExp += `#attr= :attr`
+        expAttrVals[':attr'] = value
+    }
+
+
     const params = {
         TableName: process.env.DYNAMO_DB_TABLE_NAME,
         Key: { user_id: userId },
-        UpdateExpression: `
-        SET last_updated_at = :timeNow, 
-        #attr = :attr`,
+        UpdateExpression: updateExp,
         ExpressionAttributeNames: {
-            '#attr': USRE_ATTR[attribute], // Map #attr to the actual attribute name
+            '#attr': USER_ATTR[attribute], // Map #attr to the actual attribute name
         },
-        ExpressionAttributeValues: {
-            ':timeNow': date.toISOString(),
-            ':attr': value,
-        },
+        ExpressionAttributeValues: expAttrVals,
         ReturnValues: 'UPDATED_NEW',
     }
     return docClient.update(params).promise()

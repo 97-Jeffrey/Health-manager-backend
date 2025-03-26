@@ -22,7 +22,7 @@ const TYPE_LIST_ATTR =[
     'recipes'
 ]
 
-function _updateAccount(userId, attribute, value) {
+function _updateAccount(userId, attribute, value, ADD_NEW=false) {
 
     console.log(userId, attribute, value);
 
@@ -33,7 +33,7 @@ function _updateAccount(userId, attribute, value) {
         ':timeNow': date.toISOString(),
     }
 
-    if (TYPE_LIST_ATTR.indexOf(attribute) !== -1) {
+    if (TYPE_LIST_ATTR.indexOf(attribute) !== -1 && ADD_NEW) {
         updateExp += `#attr = list_append(if_not_exists(#attr, :emptyList), :attr)`
         expAttrVals[':emptyList'] = []
         expAttrVals[':attr'] = [value]

@@ -24,10 +24,9 @@ router.get('/:userId', async(req, res)=>{
         const { Item } = await awsJourneyService.getJourneys(userId)
         const journeyData= Item?.journey?? []
 
-        res.status(200).send({
-            ...journeyData, 
-            lastUpdatedAt: Item.last_updated_at 
-        })
+        console.log('Item', Item)
+
+        res.status(200).send(journeyData)
        
         
     }catch(err){
@@ -52,11 +51,12 @@ router.post('/:userId/create', async (req, res) => {
         }
         const journeyId = uuidv4();
         const { journey } = req.body;
+        const newJourney = {...journey, id: journeyId}
 
         try{
   
 
-            const data = await awsJourneyService.createJoruney(userId, {...journey, journeyId})
+            const data = await awsJourneyService.createJoruney(userId, newJourney)
             printInfo('awsJourneyService', NAMESPACE,'createJourney',data.Attributes)
             
             res.status(200).send('Journey Create Success')

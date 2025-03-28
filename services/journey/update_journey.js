@@ -2,8 +2,7 @@ const docClient = require('../aws_config').getDocClient()
 
 
 /**
- * Add new journey  for user with @param userId 
-
+ * Update a existing journey for user with @param userId  and @param journey
  *
  * @param {String} patientId
  * @param {Object} journey
@@ -11,6 +10,11 @@ const docClient = require('../aws_config').getDocClient()
  */
 
 function _updateJourney(userId, journey){
+
+
+    console.log(userId, journey)
+
+
     let date = new Date()
     const params = {
         TableName: process.env.DYNAMO_DB_JOURNEY_TABLE_NAME,

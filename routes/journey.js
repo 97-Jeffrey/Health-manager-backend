@@ -24,7 +24,7 @@ router.get('/:userId', async(req, res)=>{
         const { Item } = await awsJourneyService.getJourneys(userId)
         const journeyData= Item?.journey?? []
 
-        console.log('Item', Item)
+        // console.log('Item', Item)
 
         res.status(200).send(journeyData)
        
@@ -92,12 +92,19 @@ router.put(`/:userId/edit/:journeyId`, async (req, res) => {
     }
     const { journey } =req.body
 
+    console.log('journey', journey)
+    console.log('journey Id', journeyId)
+
     try {
         const journeys = await awsJourneyService.getJourneys(userId)
         const newJourneys =journeys.Item.journey.map(jour => jour.id !== journeyId? jour: journey);
 
-        const data = await awsJourneyService.updateJourney(patientId, newJourneys);
-        printInfo('awsJourneyService', NAMESPACE,'updateJourney',data.Attributes)
+
+
+        console.log("newJourneys", newJourneys)
+
+        const data = await awsJourneyService.updateJourney(userId, newJourneys);
+        printInfo('awsJourneyService', NAMESPACE,'updateJourney', data.Attributes)
 
         res.status(200).send('Journey Update Success')
 
@@ -105,7 +112,7 @@ router.put(`/:userId/edit/:journeyId`, async (req, res) => {
 
     } catch (err) {
    
-        printError('awsJourneyService', NAMESPACE, 'updateJourney', err)
+        printError('awsJourneyService', NAMESPACE, 'updateJourney!!!!', err)
         res.status(400).send(
             `Service error: path="/${NAMESPACE}/${userId}/edit/:journeyId" method="PUT".`
         )
@@ -127,14 +134,16 @@ router.post(`/:userId/delete`, async (req, res) => {
     }
     const { journeyId } = req.body;
 
+    console.log("journeyId", journeyId)
+
     try {
         const journeys = await awsJourneyService.getJourneys(userId)
         const newJourneys = [...journeys.Item.journey.filter(journey => journey.id !== journeyId)];
     
 
         await awsJourneyService.updateJourney(userId, newJourneys)
-        printInfo('awsJourneyService',NAMESPACE,'deleteJourney',data.Attributes)
-        res.status(200).send('journey Update Success')
+        
+        res.status(200).send('journey Delete Success')
            
 
     } catch (err) {

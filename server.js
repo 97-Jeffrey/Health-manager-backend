@@ -13,7 +13,9 @@ require('dotenv').config()
 const userRouter = require('./routes/user')
 const recipeRouter = require('./routes/recipe')
 const journeyRouter = require('./routes/journey')
+const bodyRouter = require('./routes/body')
 const imageRouter = require('./routes/image')
+
 
 
 
@@ -91,6 +93,7 @@ app.use(
 app.use(`/${baseRoute}user`, cognitoAuthMiddleware, userRouter)
    .use(`/${baseRoute}recipe`, cognitoAuthMiddleware, recipeRouter)
    .use(`/${baseRoute}journey`, cognitoAuthMiddleware, journeyRouter)
+   .use(`/${baseRoute}body`, cognitoAuthMiddleware, bodyRouter)
    .use(`/${baseRoute}images`, cognitoAuthMiddleware, imageRouter)
 
 // Start the server and listen on the specified port

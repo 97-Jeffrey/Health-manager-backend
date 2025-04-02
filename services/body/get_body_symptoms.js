@@ -10,7 +10,7 @@ const docClient = require('../aws_config').getDocClient();
 function _getSymptoms (userId) {
 
     const params ={
-        TableName: process.env.DYNAMO_DB_JOURNEY_TABLE_NAME,
+        TableName: process.env.DYNAMO_DB_BODY_TABLE_NAME,
         Key: { user_id : userId },
         ReturnValues: 'UPDATED_NEW',
     }

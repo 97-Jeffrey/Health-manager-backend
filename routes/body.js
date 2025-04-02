@@ -24,7 +24,7 @@ router.get('/:userId/symptoms', async(req, res)=>{
         const { Item } = await awsBodyService.getBodySymptoms(userId)
         const symptomData= Item?.symptoms?? []
 
-        // console.log('Item', Item)
+        console.log('Item', Item)
 
         res.status(200).send(symptomData)
        
@@ -82,12 +82,12 @@ router.put(`/:userId/symptom/edit/:symptomId`, async (req, res) => {
         )
         return
     }
-    const { symptom } =req.body
+    const { bodySymptom } =req.body
 
 
     try {
         const symptoms = await awsBodyService.getBodySymptoms(userId)
-        const newSymptoms =symptoms.Item.symptoms.map(sym => sym.id !== symptomId? sym: symptom);
+        const newSymptoms =symptoms.Item.symptoms.map(sym => sym.id !== symptomId? sym: bodySymptom);
 
 
         const data = await awsBodyService.updateBodyAttributes(userId, 'symptoms', newSymptoms);
@@ -119,15 +119,18 @@ router.post(`/:userId/symptom/delete`, async (req, res) => {
         )
         return
     }
-    const { symptomId } = req.body;
+    const { bodySymptomId } = req.body;
 
     try {
         const symptoms = await awsBodyService.getBodySymptoms(userId)
-        const newSymptoms = [...symptoms.Item.symptoms.filter(symptom => symptom.id !== symptomId)];
+        const newSymptoms = [...symptoms.Item.symptoms.filter(symptom => symptom.id !== bodySymptomId)];
+
+
+        console.log("newSymptoms", newSymptoms)
     
 
         await awsBodyService.updateBodyAttributes(userId, 'symptoms', newSymptoms)
-        printInfo('awsBodyService', NAMESPACE,'deleteBodyAttributes / symptoms', data.Attributes)
+        printInfo('awsBodyService', NAMESPACE,'deleteBodyAttributes / symptoms', {})
         
         res.status(200).send('symptoms Delete Success')
            

@@ -51,8 +51,8 @@ router.post('/:userId/symptom/create', async (req, res) => {
         return
     }
     const symptomId = uuidv4();
-    const { symptom } = req.body;
-    const newSymptom = {...symptom, id: symptomId}
+    const { bodySymptom } = req.body;
+    const newSymptom = {...bodySymptom, id: symptomId}
 
     try{
 

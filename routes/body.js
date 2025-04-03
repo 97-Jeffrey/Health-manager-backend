@@ -21,7 +21,7 @@ router.get('/:userId/symptoms', async(req, res)=>{
     }
 
     try{
-        const { Item } = await awsBodyService.getBodySymptoms(userId)
+        const { Item } = await awsBodyService.getBodyAttributes(userId)
         const symptomData= Item?.symptoms?? []
 
         console.log('Item', Item)
@@ -38,6 +38,70 @@ router.get('/:userId/symptoms', async(req, res)=>{
     }
 })
 
+
+
+// get all body weights
+router.get('/:userId/weights', async(req, res)=>{
+
+    const { userId } = req.params;
+
+
+    if (!validateUser(req)) {
+        res.status(401).send(
+            `Unauthorized request: path="/${NAMESPACE}/:userId" method="GET".`
+        )
+        return
+    }
+
+    try{
+        const { Item } = await awsBodyService.getBodyAttributes(userId)
+        const weightData= Item?.weights?? []
+
+        console.log('Item', Item)
+
+        res.status(200).send(weightData)
+       
+        
+    }catch(err){
+        printError('route', NAMESPACE, 'getBodyAttributes / weights', err)
+        res.status(400).send(
+            `Route error: path="/${NAMESPACE}/:userId/weights" method="GET".`
+        )
+        throw err
+    }
+})
+
+
+
+// add a new body weight
+router.post('/:userId/weight/create', async (req, res) => {
+    
+    const { userId } = req.params
+    if (!validateUser(req)) {
+        res.status(401).send(
+            `Unauthorized request: path="/${NAMESPACE}/:userId/weight/create" method="POST".`
+        )
+        return
+    }
+    const weightId = uuidv4();
+    const { bodyWeight } = req.body;
+    const newWeight = {...bodyWeight, id: weightId}
+
+    try{
+
+        const data = await awsBodyService.createBodyAttributes(userId, 'weights', newWeight)
+        printInfo('awsBodyService', NAMESPACE,'createBodyAttributes / weights', data.Attributes)
+        
+        res.status(200).send('weight Create Success')
+            
+    }
+    catch(err){
+        printError('awsBodyService', NAMESPACE, 'createBodyAttributes / weights', err)
+        res.status(400).send(
+            `Service error: path="/${NAMESPACE}/:userId/weight/create" method="POST".`
+        )
+    }
+})
 
 
 // create a brand new body symptom
@@ -59,7 +123,7 @@ router.post('/:userId/symptom/create', async (req, res) => {
         const data = await awsBodyService.createBodyAttributes(userId, 'symptoms', newSymptom)
         printInfo('awsBodyService', NAMESPACE,'createBodyAttributes / symptoms', data.Attributes)
         
-        res.status(200).send('Journey Create Success')
+        res.status(200).send('symptom Create Success')
             
     }
     catch(err){
@@ -86,7 +150,7 @@ router.put(`/:userId/symptom/edit/:symptomId`, async (req, res) => {
 
 
     try {
-        const symptoms = await awsBodyService.getBodySymptoms(userId)
+        const symptoms = await awsBodyService.getBodyAttributes(userId)
         const newSymptoms =symptoms.Item.symptoms.map(sym => sym.id !== symptomId? sym: bodySymptom);
 
 
@@ -109,6 +173,43 @@ router.put(`/:userId/symptom/edit/:symptomId`, async (req, res) => {
 })
 
 
+// update A body weight:
+router.put(`/:userId/weight/edit/:weightId`, async (req, res) => {
+
+    const { userId, weightId } = req.params
+    if (!validateUser(req)) {
+        res.status(401).send(
+            `Unauthorized request: path="/${NAMESPACE}/:userId/weight/edit/:weightId" method="PUT".`
+        )
+        return
+    }
+    const { bodyWeight } =req.body
+
+
+    try {
+        const weights = await awsBodyService.getBodyAttributes(userId)
+        const newWeights =weights.Item.weights.map(weight => weight.id !== weightId? weight: bodyWeight);
+
+
+        const data = await awsBodyService.updateBodyAttributes(userId, 'weights', newWeights);
+        printInfo('awsBodyService', NAMESPACE,'updateBodyAttributes / weights', data.Attributes)
+
+        res.status(200).send('body weights Update Success')
+
+            
+
+    } catch (err) {
+   
+        printError('awsBodyService', NAMESPACE, 'updateBodyAttributes / weights', err)
+        res.status(400).send(
+            `Service error: path="/${NAMESPACE}/${userId}/weights/edit/:symptomId" method="PUT".`
+        )
+        
+    }
+
+})
+
+
 // Delete A body symptom:
 router.post(`/:userId/symptom/delete`, async (req, res) => {
 
@@ -122,7 +223,7 @@ router.post(`/:userId/symptom/delete`, async (req, res) => {
     const { bodySymptomId } = req.body;
 
     try {
-        const symptoms = await awsBodyService.getBodySymptoms(userId)
+        const symptoms = await awsBodyService.getBodyAttributes(userId)
         const newSymptoms = [...symptoms.Item.symptoms.filter(symptom => symptom.id !== bodySymptomId)];
 
 
@@ -139,6 +240,41 @@ router.post(`/:userId/symptom/delete`, async (req, res) => {
         printError('awsBodyService', NAMESPACE, 'deleteBodyAttributes / symptoms', err)
         res.status(400).send(
             `Service error: path="/${NAMESPACE}/${userId}/symptom/delete" method="POST".`
+        )
+    }
+
+})
+
+
+
+// Delete A body weight:
+router.post(`/:userId/weight/delete`, async (req, res) => {
+
+    const { userId } = req.params
+    if (!validateUser(req)) {
+        res.status(401).send(
+            `Unauthorized request: path="/${NAMESPACE}/:userId/weight/delete" method="POST".`
+        )
+        return
+    }
+    const { bodyWeightId } = req.body;
+
+    try {
+        const weights = await awsBodyService.getBodyAttributes(userId)
+        const newWeights = [...weights.Item.weights.filter(weight => weight.id !== bodyWeightId)];
+
+    
+
+        await awsBodyService.updateBodyAttributes(userId, 'weights', newWeights)
+        printInfo('awsBodyService', NAMESPACE,'deleteBodyAttributes / weights', {})
+        
+        res.status(200).send('weight Delete Success')
+           
+
+    } catch (err) {
+        printError('awsBodyService', NAMESPACE, 'deleteBodyAttributes / weights', err)
+        res.status(400).send(
+            `Service error: path="/${NAMESPACE}/${userId}/weights/delete" method="POST".`
         )
     }
 

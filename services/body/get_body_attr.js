@@ -7,7 +7,7 @@ const docClient = require('../aws_config').getDocClient();
  * @return {Promise} data - response is data.Attributes
  */
 
-function _getSymptoms (userId) {
+function _getBodyAttr (userId) {
 
     const params ={
         TableName: process.env.DYNAMO_DB_BODY_TABLE_NAME,
@@ -18,4 +18,4 @@ function _getSymptoms (userId) {
     return docClient.get(params).promise()
 
 }
-exports.default = _getSymptoms
+exports.default = _getBodyAttr

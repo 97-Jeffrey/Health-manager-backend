@@ -2,30 +2,31 @@ const express = require('express')
 const router = express.Router()
 const awsMindService  = require('../services/mind')
 
-const { v4: uuidv4 } = require('uuid')
+const { v4: uuidv4 } = require('uuid');
+const { validateUser, printInfo, printError } = require('../helpers/general_helpers');
 
 const NAMESPACE = 'MIND';
 
 // get mind properties for a user
-router.get('/:userId', async(req, res)=>{
+router.get('/:userId/:attr', async(req, res)=>{
 
-    const { userId } = req.params;
+    const { userId, attr } = req.params;
 
 
     if (!validateUser(req)) {
         res.status(401).send(
-            `Unauthorized request: path="/${NAMESPACE}/:userId" method="GET".`
+            `Unauthorized request: path="/${NAMESPACE}/:userId"/:attr method="GET".`
         )
         return
     }
 
     try{
         const { Item } = await awsMindService.getMindAttribute(userId)
-        // const data= Item[attr] ?? MIND_DEFAULT[attr]
+        const data= Item[attr] ?? []
 
-        // console.log('data', data)
+        console.log('data', data)
 
-        res.status(200).send(Item)
+        res.status(200).send(data)
        
         
     }catch(err){
@@ -39,12 +40,12 @@ router.get('/:userId', async(req, res)=>{
 
 
 // add new mind proprety
-router.post('/:userId/create', async (req, res) => {
+router.post('/:userId/create/:type', async (req, res) => {
     
-    const { userId } = req.params
+    const { userId, type } = req.params
     if (!validateUser(req)) {
         res.status(401).send(
-            `Unauthorized request: path="/${NAMESPACE}/:userId/mind/create" method="POST".`
+            `Unauthorized request: path="/${NAMESPACE}/:userId/mind/create/:type" method="POST".`
         )
         return
     }
@@ -54,7 +55,7 @@ router.post('/:userId/create', async (req, res) => {
 
     try{
 
-        const data = await awsMindService.createMind(userId, newMind)
+        const data = await awsMindService.createMind(userId, type, newMind)
         printInfo('awsMindService', NAMESPACE,'createMind', data.Attributes)
         
         res.status(200).send('mind Create Success')

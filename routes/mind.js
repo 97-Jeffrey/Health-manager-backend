@@ -71,12 +71,12 @@ router.post('/:userId/create/:type', async (req, res) => {
 
 
 // update a existing mind:
-router.put(`/:userId/:mindId`, async (req, res) => {
+router.put(`/:userId/:mindId/:type`, async (req, res) => {
 
-    const { userId, mindId } = req.params
+    const { userId, mindId, type } = req.params
     if (!validateUser(req)) {
         res.status(401).send(
-            `Unauthorized request: path="/${NAMESPACE}/:userId/:mindId" method="PUT".`
+            `Unauthorized request: path="/${NAMESPACE}/:userId/:mindId/:type" method="PUT".`
         )
         return
     }
@@ -84,10 +84,10 @@ router.put(`/:userId/:mindId`, async (req, res) => {
 
     try {
         const minds = await awsMindService.getMindAttribute(userId)
-        const newMinds =minds.Item.mind.map(mi => mi.id !== mindId? mi: mind);
+        const newMinds =minds.Item[type].map(mi => mi.mindId !== mindId? mi: mind);
 
-        const data = await awsMindService.updateMind(userId, newMinds);
-        printInfo('awsMindService', NAMESPACE,'updateMind', data.Attributes)
+        const data = await awsMindService.updateMind(userId, type, newMinds);
+        printInfo('awsMindService', NAMESPACE, `updateMind / ${type}`, data.Attributes)
 
         res.status(200).send('mind Update Success')
 
@@ -97,7 +97,7 @@ router.put(`/:userId/:mindId`, async (req, res) => {
    
         printError('awsMindService', NAMESPACE, 'updateMind', err)
         res.status(400).send(
-            `Service error: path="/${NAMESPACE}/${userId}/:mind" method="PUT".`
+            `Service error: path="/${NAMESPACE}/${userId}/:mindId/:type" method="PUT".`
         )
         
     }
@@ -107,12 +107,13 @@ router.put(`/:userId/:mindId`, async (req, res) => {
 
 
 // Delete A mind:
-router.post(`/:userId/delete`, async (req, res) => {
+router.post(`/:userId/:type/delete`, async (req, res) => {
 
-    const { userId } = req.params
+    const { userId, type } = req.params
+
     if (!validateUser(req)) {
         res.status(401).send(
-            `Unauthorized request: path="/${NAMESPACE}/:userId/delete" method="POST".`
+            `Unauthorized request: path="/${NAMESPACE}/:userId/:type/delete" method="POST".`
         )
         return
     }
@@ -121,10 +122,9 @@ router.post(`/:userId/delete`, async (req, res) => {
 
     try {
         const minds = await awsMindService.getMindAttribute(userId)
-        const newMinds = [...minds.Item.mind.filter(mid => mid.id !== mindId)];
+        const newMinds = [...minds.Item[type].filter(mi => mi.mindId !== mindId)];
     
-
-        await awsMindService.updateMind(userId, newMinds)
+        await awsMindService.updateMind(userId, type, newMinds)
         
         res.status(200).send('Mind Delete Success')
            

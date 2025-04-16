@@ -24,8 +24,6 @@ router.get('/:userId/:attr', async(req, res)=>{
         const { Item } = await awsMindService.getMindAttribute(userId)
         const data= Item[attr] ?? []
 
-        console.log('data', data)
-
         res.status(200).send(data)
        
         
@@ -51,7 +49,7 @@ router.post('/:userId/create/:type', async (req, res) => {
     }
     const { mind } = req.body;
     const mindId = uuidv4()
-    const newMind = { mindId, ...mind }
+    const newMind = { ...mind, id: mindId }
 
     try{
 
@@ -84,7 +82,7 @@ router.put(`/:userId/:mindId/:type`, async (req, res) => {
 
     try {
         const minds = await awsMindService.getMindAttribute(userId)
-        const newMinds =minds.Item[type].map(mi => mi.mindId !== mindId? mi: mind);
+        const newMinds =minds.Item[type].map(mi => mi.id !== mindId? mi: mind);
 
         const data = await awsMindService.updateMind(userId, type, newMinds);
         printInfo('awsMindService', NAMESPACE, `updateMind / ${type}`, data.Attributes)
@@ -122,7 +120,7 @@ router.post(`/:userId/:type/delete`, async (req, res) => {
 
     try {
         const minds = await awsMindService.getMindAttribute(userId)
-        const newMinds = [...minds.Item[type].filter(mi => mi.mindId !== mindId)];
+        const newMinds = [...minds.Item[type].filter(mi => mi.id !== mindId)];
     
         await awsMindService.updateMind(userId, type, newMinds)
         

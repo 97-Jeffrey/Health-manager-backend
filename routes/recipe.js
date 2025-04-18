@@ -98,7 +98,7 @@ router.post('/:userId/create', async (req, res) => {
         const recipeId = uuidv4();
         const { recipe } = req.body;
 
-        console.log('recipe', recipeId, recipe)
+        // console.log('recipe', recipeId, recipe)
 
         // return;
 
@@ -107,7 +107,10 @@ router.post('/:userId/create', async (req, res) => {
             const userData = await awsUserService.updateUser(userId, 'recipes', recipeId, true)
             printInfo('awsUserService', 'USER','updateUser',userData.Attributes)
 
-            const data = await awsRecipeService.createRecipe(userId, recipeId, recipe)
+            const micronutrients = await awsRecipeService.parseNutrients(recipe.name)
+            console.log("micronutrients", micronutrients)
+
+            const data = await awsRecipeService.createRecipe(userId, recipeId, {...recipe, micronutrients })
             printInfo('awsRecipeService', NAMESPACE,'createRecipe',data.Attributes)
             
             res.status(200).send('Recipe Create Success')
@@ -147,8 +150,11 @@ router.put('/:userId/edit/:recipeId', async (req, res) => {
         // return;
 
         try{
+
+            const micronutrients = await awsRecipeService.parseNutrients(recipe.name)
+            console.log("micronutrients", micronutrients)
   
-            const data = await awsRecipeService.updateRecipe(userId, recipeId, recipe)
+            const data = await awsRecipeService.updateRecipe(userId, recipeId, {...recipe, micronutrients })
             printInfo('awsRecipeService', NAMESPACE,'updateRecipe',data.Attributes)
             
             res.status(200).send('Recipe Create Success')

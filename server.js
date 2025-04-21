@@ -12,6 +12,7 @@ require('dotenv').config()
 // Separated routes for each resource
 const userRouter = require('./routes/user')
 const recipeRouter = require('./routes/recipe')
+const mealRouter = require('./routes/meal')
 const journeyRouter = require('./routes/journey')
 const bodyRouter = require('./routes/body')
 const mindRouter = require('./routes/mind')
@@ -92,6 +93,7 @@ app.use(
 
 // Define a basic route
 app.use(`/${baseRoute}user`, cognitoAuthMiddleware, userRouter)
+   .use(`/${baseRoute}meal`, cognitoAuthMiddleware, mealRouter)
    .use(`/${baseRoute}recipe`, cognitoAuthMiddleware, recipeRouter)
    .use(`/${baseRoute}journey`, cognitoAuthMiddleware, journeyRouter)
    .use(`/${baseRoute}body`, cognitoAuthMiddleware, bodyRouter)

@@ -101,13 +101,14 @@ router.post('/:userId/create', async (req, res) => {
         // console.log('recipe', recipeId, recipe)
 
         // return;
+        const combinedFoodName = `${recipe.name} ${recipe.ingredients.join('')}`
 
         try{
   
             const userData = await awsUserService.updateUser(userId, 'recipes', recipeId, true)
             printInfo('awsUserService', 'USER','updateUser',userData.Attributes)
 
-            const micronutrients = await awsRecipeService.parseNutrients(recipe.name)
+            const micronutrients = await awsRecipeService.parseNutrients(combinedFoodName)
             console.log("micronutrients", micronutrients)
 
             const data = await awsRecipeService.createRecipe(userId, recipeId, {...recipe, micronutrients })
@@ -149,9 +150,11 @@ router.put('/:userId/edit/:recipeId', async (req, res) => {
 
         // return;
 
+        const combinedFoodName = `${recipe.name} ${recipe.ingredients.join('')}`
+
         try{
 
-            const micronutrients = await awsRecipeService.parseNutrients(recipe.name)
+            const micronutrients = await awsRecipeService.parseNutrients(combinedFoodName)
             console.log("micronutrients", micronutrients)
   
             const data = await awsRecipeService.updateRecipe(userId, recipeId, {...recipe, micronutrients })

@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const awsMealService = require('../services/meal')
+const awsRecipeService = require('../services/recipe')
 const { validateUser, printInfo, printError} = require('../helpers/general_helpers')
 const { v4: uuidv4 } = require('uuid')
 
@@ -55,9 +56,12 @@ router.post('/:userId/create', async (req, res) => {
         const newMeal = {...meal, id: mealId }
 
         try{
+
+            const micronutrients = await awsRecipeService.parseNutrients(newMeal.name)
+            printInfo('awsRecipeService', NAMESPACE,'parseNutrients',{})
   
 
-            const data = await awsMealService.createMeal(userId, newMeal)
+            const data = await awsMealService.createMeal(userId, {...newMeal, micronutrients})
             printInfo('awsMealService', NAMESPACE,'createMeal',data.Attributes)
             
             res.status(200).send('Meal Create Success')
@@ -95,8 +99,13 @@ router.put(`/:userId/edit/:mealId`, async (req, res) => {
 
 
     try {
+
+
+        const micronutrients = await awsRecipeService.parseNutrients(meal.name)
+        printInfo('awsRecipeService', NAMESPACE,'parseNutrients',{})
+
         const meals = await awsMealService.getMeals(userId)
-        const newMeals =meals.Item.meal.map(eachMeal => eachMeal.id !== mealId? eachMeal: meal);
+        const newMeals =meals.Item.meal.map(eachMeal => eachMeal.id !== mealId? eachMeal: {...meal, micronutrients});
 
 
         const data = await awsMealService.updateMeal(userId, newMeals);

@@ -5,6 +5,7 @@ const PORT = 8080;
 
 const bodyParser = require('body-parser')
 const cognitoAuth = require('./services/cognito_auth')
+const fileUpload = require('express-fileupload');
 
 // Use environment variables in .env file
 require('dotenv').config()
@@ -33,6 +34,10 @@ const bpJsonOptions = {
 app.use(bodyParser.json(bpJsonOptions)).use(
     bodyParser.urlencoded({ limit: '50mb', extended: true })
 )
+app.use(fileUpload({
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    abortOnLimit: true,
+}));
 
 
 

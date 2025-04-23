@@ -15,7 +15,9 @@ const USER_ATTR = {
     specialty:'specialty',
     phone_number: 'phone_number',
     address:'address',
-    recipes: 'recipes'
+    recipes: 'recipes',
+    image: 'image'
+
 }
 
 const TYPE_LIST_ATTR =[

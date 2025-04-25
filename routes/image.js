@@ -40,17 +40,17 @@ const validateFileUpload = (req, res, next) => {
     }
   
     next();
-  };
+};
   
 
 
-router.post('/:userId/profile-photo',  validateFileUpload, async (req,res)=>{
+router.post(`/:userId/:imageType`,  validateFileUpload, async (req,res)=>{
 
-    const { userId } = req.params;
+    const { userId, imageType } = req.params;
 
     if (!validateUser(req)) {
         res.status(401).send(
-            `Unauthorized request: path="/${NAMESPACE}/:userId/profile-photo" method="POST".`
+            `Unauthorized request: path="/${NAMESPACE}/:userId/${imageType}" method="POST".`
         )
         return
     }
@@ -60,7 +60,7 @@ router.post('/:userId/profile-photo',  validateFileUpload, async (req,res)=>{
         const file = req.files.file;
 
         const fileExt = file.name.split('.').pop();
-        const key = `profile-photo/${userId}/${uuidv4()}.${fileExt}`;
+        const key = `${imageType}/${userId}/${uuidv4()}.${fileExt}`;
 
 
         const params = {
@@ -80,10 +80,9 @@ router.post('/:userId/profile-photo',  validateFileUpload, async (req,res)=>{
         });
 
     } catch (error) {
-        console.error('Upload error:', error);
         res.status(500).json({ 
-        error: 'Upload failed',
-        details: error.message 
+            error: `Upload ${imageType} failed`,
+            details: error.message 
         });
     }
       
@@ -91,5 +90,53 @@ router.post('/:userId/profile-photo',  validateFileUpload, async (req,res)=>{
 
 
 })
+
+// router.post('/:userId/meal-image',  validateFileUpload, async (req,res)=>{
+
+//     const { userId } = req.params;
+
+//     if (!validateUser(req)) {
+//         res.status(401).send(
+//             `Unauthorized request: path="/${NAMESPACE}/:userId/meal-image" method="POST".`
+//         )
+//         return
+//     }
+
+//     try {
+
+//         const file = req.files.file;
+
+//         const fileExt = file.name.split('.').pop();
+//         const key = `meal-image/${userId}/${uuidv4()}.${fileExt}`;
+
+
+//         const params = {
+//             Bucket: process.env.AWS_S3_BUCKET_NAME,
+//             Key: key,
+//             Body: file.data,
+//             ContentType: file.mimetype,
+//             // ACL: 'public-read', // or 'private' if you prefer
+//         };
+
+//         const s3Response = await s3.upload(params).promise();
+
+//         res.status(200).json({ 
+//             success: true, 
+//             fileUrl: s3Response.Location,
+//             // key: s3Response.Key
+//         });
+
+//     } catch (error) {
+//         console.error('Upload error:', error);
+//         res.status(500).json({ 
+//         error: 'Upload failed',
+//         details: error.message 
+//         });
+//     }
+      
+
+
+
+// })
 
 module.exports = router

@@ -98,10 +98,12 @@ router.post('/:userId/create', async (req, res) => {
         const recipeId = uuidv4();
         const { recipe } = req.body;
 
-        // console.log('recipe', recipeId, recipe)
+        console.log('recipe', recipeId, recipe)
 
         // return;
         const combinedFoodName = `${recipe.name} ${recipe.ingredients.join('')}`
+
+        console.log("combinedFoodName", combinedFoodName)
 
         try{
   
@@ -111,7 +113,7 @@ router.post('/:userId/create', async (req, res) => {
             const micronutrients = await awsRecipeService.parseNutrients(combinedFoodName)
             console.log("micronutrients", micronutrients)
 
-            const data = await awsRecipeService.createRecipe(userId, recipeId, {...recipe, micronutrients })
+            const data = await awsRecipeService.createRecipe(userId, recipeId, {...recipe, micronutrients})
             printInfo('awsRecipeService', NAMESPACE,'createRecipe',data.Attributes)
             
             res.status(200).send('Recipe Create Success')

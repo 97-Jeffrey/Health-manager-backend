@@ -2,9 +2,9 @@ const docClient = require('../aws_config').getDocClient()
 
 
 /**
- * Update a existing body attribute for user with @param userId  and @param name and 
+ * Update a existing fitness for user with @param userId  and @param name and 
  * @param attr
- *s
+ *
  * @param {String} userId
  * @param {String} name
  * @param {Object} attr
@@ -12,11 +12,11 @@ const docClient = require('../aws_config').getDocClient()
  * @return {Promise} data - response is data.Attributes
  */
 
-function _updateBodyAttr(userId, name, attr){
+function _updateFitnessAttr(userId, name, attr){
 
     let date = new Date()
     const params = {
-        TableName: process.env.DYNAMO_DB_BODY_TABLE_NAME,
+        TableName: process.env.DYNAMO_DB_FITNESS_TABLE_NAME,
         Key: { user_id: userId },
         UpdateExpression:
             `SET last_updated_at = :timeNow, ${name} = :attr`,
@@ -31,4 +31,4 @@ function _updateBodyAttr(userId, name, attr){
 }
 
 
-exports.default = _updateBodyAttr
+exports.default = _updateFitnessAttr

@@ -4,7 +4,7 @@ const docClient = require('../aws_config').getDocClient()
 /**
  * Update a existing journey for user with @param userId  and @param journey
  *
- * @param {String} patientId
+ * @param {String} userId
  * @param {Object} journey
  * @return {Promise} data - response is data.Attributes
  */

@@ -2,24 +2,26 @@ const docClient = require('../aws_config').getDocClient()
 
 
 /**
- * Add new @param recommendation for user with @param userId from
+ * Add new @param attribute for user with @param userId
  *
- * @param {String} 
- * @param {Object} journey
+ * @param {String} userId
+ * @param {String} name
+ * @param {Object} attribute
+ * 
  * @return {Promise} data - response is data.Attributes
  */
 
-function _createJourney(userId, journey){
+function _createFitnessAttr(userId, name, attribute){
     let date = new Date()
     const params = {
-        TableName: process.env.DYNAMO_DB_JOURNEY_TABLE_NAME,
+        TableName: process.env.DYNAMO_DB_FITNESS_TABLE_NAME,
         Key: { user_id: userId },
         UpdateExpression:
-            'SET last_updated_at = :timeNow, journey = list_append(if_not_exists(journey, :emptyList), :attr)',
+            `SET last_updated_at = :timeNow, ${name} = list_append(if_not_exists(${name}, :emptyList), :attr)`,
         ExpressionAttributeValues: {
             ':timeNow': date.toISOString(),
             ':emptyList': [],
-            ':attr': [journey],
+            ':attr': [attribute],
         },
         ReturnValues: 'UPDATED_NEW',
     }
@@ -27,4 +29,4 @@ function _createJourney(userId, journey){
 
 }
 
-exports.default = _createJourney
+exports.default = _createFitnessAttr

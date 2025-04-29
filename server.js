@@ -18,6 +18,7 @@ const journeyRouter = require('./routes/journey')
 const bodyRouter = require('./routes/body')
 const mindRouter = require('./routes/mind')
 const imageRouter = require('./routes/image')
+const fitnessRouter = require('./routes/fitness')
 
 
 
@@ -99,6 +100,7 @@ app.use(
 // Define a basic route
 app.use(`/${baseRoute}user`, cognitoAuthMiddleware, userRouter)
    .use(`/${baseRoute}meal`, cognitoAuthMiddleware, mealRouter)
+   .use(`/${baseRoute}fitness`, cognitoAuthMiddleware, fitnessRouter)
    .use(`/${baseRoute}recipe`, cognitoAuthMiddleware, recipeRouter)
    .use(`/${baseRoute}journey`, cognitoAuthMiddleware, journeyRouter)
    .use(`/${baseRoute}body`, cognitoAuthMiddleware, bodyRouter)

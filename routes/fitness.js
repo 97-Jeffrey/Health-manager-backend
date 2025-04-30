@@ -41,9 +41,9 @@ router.get('/:userId/sports', async(req, res)=>{
 
 
 // create a brand new sport
-router.post('/:userId/create', async (req, res) => {
+router.post('/:userId/:type/create', async (req, res) => {
     try {
-        const { userId } = req.params
+        const { userId, type } = req.params
         if (!validateUser(req)) {
             res.status(401).send(
                 `Unauthorized request: path="/${NAMESPACE}/:userId/create" method="POST".`
@@ -57,7 +57,7 @@ router.post('/:userId/create', async (req, res) => {
         try{
   
 
-            const data = await awsFitnessService.createFitness(userId, 'sport', newSport)
+            const data = await awsFitnessService.createFitness(userId, type, newSport)
             printInfo('awsFitnessService', NAMESPACE,'createFitness',data.Attributes)
             
             res.status(200).send('Sport Create Success')
@@ -82,7 +82,7 @@ router.post('/:userId/create', async (req, res) => {
 
 
 // update a existing sport
-router.put(`/:userId/edit/:sportId`, async (req, res) => {
+router.put(`/:userId/:type/edit/:sportId`, async (req, res) => {
 
     const { userId, sportId } = req.params
     if (!validateUser(req)) {
@@ -121,9 +121,9 @@ router.put(`/:userId/edit/:sportId`, async (req, res) => {
 
 
 // Delete A fitness:
-router.post(`/:userId/delete`, async (req, res) => {
+router.post(`/:userId/:type/delete`, async (req, res) => {
 
-    const { userId } = req.params
+    const { userId, type } = req.params
     if (!validateUser(req)) {
         res.status(401).send(
             `Unauthorized request: path="/${NAMESPACE}/:userId/delete" method="POST".`
@@ -137,7 +137,7 @@ router.post(`/:userId/delete`, async (req, res) => {
         const newSports = [...sports.Item.sport.filter(sport => sport.id !== sportId)];
     
 
-        await awsFitnessService.updateFitness(userId, "sport", newSports)
+        await awsFitnessService.updateFitness(userId, type, newSports)
         
         res.status(200).send('fitness Delete Success')
            

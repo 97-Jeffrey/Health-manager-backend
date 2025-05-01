@@ -40,7 +40,39 @@ router.get('/:userId/sports', async(req, res)=>{
 })
 
 
-// create a brand new sport
+// get all sleeps entry
+router.get('/:userId/sleeps', async(req, res)=>{
+
+    const { userId } = req.params;
+
+
+    if (!validateUser(req)) {
+        res.status(401).send(
+            `Unauthorized request: path="/${NAMESPACE}/:userId" method="GET".`
+        )
+        return
+    }
+
+    try{
+        const { Item } = await awsFitnessService.getFitness(userId)
+        const sleepData= Item?.sleep?? []
+
+        console.log('Item', Item)
+
+        res.status(200).send(sleepData)
+       
+        
+    }catch(err){
+        printError('route', NAMESPACE, 'getFitness / sleep', err)
+        res.status(400).send(
+            `Route error: path="/${NAMESPACE}/:userId/sleeps" method="GET".`
+        )
+        throw err
+    }
+})
+
+
+// create a brand new fitness
 router.post('/:userId/:type/create', async (req, res) => {
     try {
         const { userId, type } = req.params
@@ -50,21 +82,21 @@ router.post('/:userId/:type/create', async (req, res) => {
             )
             return
         }
-        const sportId = uuidv4();
-        const { sport } = req.body;
-        const newSport = {...sport, id: sportId }
+        const newId = uuidv4();
+        const data= req.body[type];
+        const newData = {...data, id: newId }
 
         try{
   
 
-            const data = await awsFitnessService.createFitness(userId, type, newSport)
-            printInfo('awsFitnessService', NAMESPACE,'createFitness',data.Attributes)
+            const data = await awsFitnessService.createFitness(userId, type, newData)
+            printInfo('awsFitnessService', NAMESPACE, `createFitness / ${type}` ,data.Attributes)
             
-            res.status(200).send('Sport Create Success')
+            res.status(200).send(`${type} Create Success`)
                 
         }
         catch(err){
-            printError('awsFitnessService', NAMESPACE, 'createFitness', err)
+            printError('awsFitnessService', NAMESPACE, `createFitness / ${type}`, err)
             res.status(400).send(
                 `Service error: path="/${NAMESPACE}/:userId/create" method="POST".`
             )
@@ -72,7 +104,7 @@ router.post('/:userId/:type/create', async (req, res) => {
         }
         
     } catch (err) {
-        printError('awsFitnessService', NAMESPACE, 'createFitness', err)
+        printError('awsFitnessService', NAMESPACE, `createFitness / ${type}`, err)
         res.status(400).send(
             `Route error: path="/${NAMESPACE}/:userId/create" method="POST".`
         )
@@ -82,34 +114,33 @@ router.post('/:userId/:type/create', async (req, res) => {
 
 
 // update a existing sport
-router.put(`/:userId/:type/edit/:sportId`, async (req, res) => {
+router.put(`/:userId/:type/edit/:fitnessId`, async (req, res) => {
 
-    const { userId, sportId } = req.params
+    const { userId, fitnessId, type } = req.params
     if (!validateUser(req)) {
         res.status(401).send(
-            `Unauthorized request: path="/${NAMESPACE}/:userId/edit/:sportId" method="PUT".`
+            `Unauthorized request: path="/${NAMESPACE}/:userId/edit/:fitnessId" method="PUT".`
         )
         return
     }
-    const { sport } =req.body
+    const data=req.body[type]
 
 
     try {
 
-        const sports = await awsFitnessService.getFitness(userId)
-        const newSports =sports.Item.sport.map(spo => spo.id !== sportId? spo: sport);
+        const datas = await awsFitnessService.getFitness(userId)
+        const newDatas =datas.Item[type].map(item => item.id !== fitnessId? item: data);
 
+        const result = await awsFitnessService.updateFitness(userId, type, newDatas);
+        printInfo('awsFitnessService', NAMESPACE,`updateFitness / ${type}`, result.Attributes)
 
-        const data = await awsFitnessService.updateFitness(userId, 'sport', newSports);
-        printInfo('awsFitnessService', NAMESPACE,'updateFitness', data.Attributes)
-
-        res.status(200).send('Sport Update Success')
+        res.status(200).send(`${type} Update Success`)
 
             
 
     } catch (err) {
    
-        printError('awsFitnessService', NAMESPACE, 'updateFitness', err)
+        printError('awsFitnessService', NAMESPACE, `updateFitness / ${type}`, err)
         res.status(400).send(
             `Service error: path="/${NAMESPACE}/${userId}/edit/:sportId" method="PUT".`
         )
@@ -120,8 +151,8 @@ router.put(`/:userId/:type/edit/:sportId`, async (req, res) => {
 
 
 
-// Delete A fitness:
-router.post(`/:userId/:type/delete`, async (req, res) => {
+// Delete A sport:
+router.post(`/:userId/sport/delete`, async (req, res) => {
 
     const { userId, type } = req.params
     if (!validateUser(req)) {
@@ -143,7 +174,7 @@ router.post(`/:userId/:type/delete`, async (req, res) => {
            
 
     } catch (err) {
-        printError('awsFitnessService', NAMESPACE, 'deleteFitness', err)
+        printError('awsFitnessService', NAMESPACE, 'deleteFitness / sport', err)
         res.status(400).send(
             `Service error: path="/${NAMESPACE}/${userId}/delete" method="POST".`
         )
@@ -151,6 +182,37 @@ router.post(`/:userId/:type/delete`, async (req, res) => {
 
 })
 
+
+// Delete A sleep:
+router.post(`/:userId/sleep/delete`, async (req, res) => {
+
+    const { userId } = req.params
+    if (!validateUser(req)) {
+        res.status(401).send(
+            `Unauthorized request: path="/${NAMESPACE}/:userId/delete" method="POST".`
+        )
+        return
+    }
+    const { sleepId } = req.body;
+
+    try {
+        const sleeps = await awsFitnessService.getFitness(userId)
+        const newSleeps = [...sleeps.Item.sleep.filter(sle => sle.id !== sleepId)];
+    
+
+        await awsFitnessService.updateFitness(userId, 'sleep', newSleeps)
+        
+        res.status(200).send('Sleep Delete Success')
+           
+
+    } catch (err) {
+        printError('awsFitnessService', NAMESPACE, 'deleteFitness / sleep', err)
+        res.status(400).send(
+            `Service error: path="/${NAMESPACE}/${userId}/delete" method="POST".`
+        )
+    }
+
+})
 
 
 module.exports = router
